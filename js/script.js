@@ -253,15 +253,21 @@ window.addEventListener('DOMContentLoaded', () => {
 
             const request = new XMLHttpRequest();
             request.open('POST', 'server.php');
-            //request.setRequestHeader('Content-type'); При використанні звязоз XMLHTTPRequest і formData заголовок встановлювати не треба(він підставляється атоматично)
+            request.setRequestHeader('Content-type', 'application/json'); //Сервер має приймати дані в JSON
 
-            /*як зробити так щоб всі дані які заповнив користувач отримати в JS і відправити на сервер
-            Є два формата передачі даних - 1.Form data;  2.Формат JSON
-            Все залежить від сервера(бекенду)
-            formData - спеціальний об*єкт, який дозволяє з певної форми сформувати дані які заповнив користувач(ключ : властивість)
-            */
            const formData = new FormData(form);
-           request.send(formData);
+           
+
+           /*Form Data перетворюємо в json*/
+            const object = {};
+            formData.forEach(function(value, key) {
+                object[key] = value;
+            });
+
+            const json = JSON.stringify(object);
+
+            request.send(json);
+
            request.addEventListener('load', () => {
             if (request.status === 200) {
                 console.log(request.response);
