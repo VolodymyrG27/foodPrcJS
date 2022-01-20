@@ -309,11 +309,9 @@ window.addEventListener('DOMContentLoaded', () => {
         }, 4000) 
     }
 
-
-
-
-
-
-
+    //Підключення до бази даних
+    fetch('db.json')
+    .then(data => data.json())
+    .then(result => console.log(result));
 
 });
