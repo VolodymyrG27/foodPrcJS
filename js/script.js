@@ -202,16 +202,25 @@ window.addEventListener('DOMContentLoaded', () => {
 
         return await res.json();
     };
+
 /*
     getResource('http://localhost:3000/menu')
         .then(data => {
             data.forEach(({img, altimg, title, descr, price}) => {
                 new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
             });
-        });*/
+        });
+*/
+    //Використання бібліотеки axios
+    axios.get('http://localhost:3000/menu')
+        .then(data => {
+            data.data.forEach(({img, altimg, title, descr, price}) => {
+                new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+            });
+        });
 
         //другий варіант створення вище вказаних елементів, різниця в тому що він не буде використовувати класи, буде зразу формути верстку
-        getResource('http://localhost:3000/menu')
+        /*getResource('http://localhost:3000/menu')
         .then(data => createCard(data));
 
         function createCard(data) {
@@ -228,12 +237,9 @@ window.addEventListener('DOMContentLoaded', () => {
                         <div class="menu__item-total"><span>${price}</span> грн/день</div>
                     </div>
                 `;
-
                 document.querySelector('.menu .container').append(element);
             });
-        }
-    
-    
+        }*/
 
     /*Відправляємо дані на сервер з форм*/
     const forms = document.querySelectorAll('form');
