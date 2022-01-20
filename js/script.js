@@ -191,40 +191,24 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /*
-    const div = new MenuCard();
-    div.render();
-    */
-    new MenuCard(
-        'img/tabs/vegy.jpg',
-        'vegy',
-        'Меню "Фитнес"',
-        'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-        12,
-        '.menu .container',
-        'menu__item'
-    ).render();
+    //Отримуємо дані з DB
+    const getResource = async (url) => {
+        const res = await fetch(url);
 
-    new MenuCard(
-        'img/tabs/post.jpg',
-        'post',
-        'Меню "Постное"',
-        'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
-        10,
-        '.menu .container',
-        'menu__item'
-    ).render();
+        if(!res.ok) {
+            throw new Error(`Could not fetch ${url}, status: ${res.status}`);
+        }
 
-    new MenuCard(
-        'img/tabs/vegy.jpg',
-        'vegy',
-        'Меню "Фитнес"',
-        'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-        12,
-        '.menu .container',
-        'menu__item'
-    ).render();
 
+        return await res.json();
+    };
+
+    getResource('http://localhost:3000/menu')
+        .then(data => {
+            data.forEach(({img, altimg, title, descr, price}) => {
+                new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+            });
+        });
     
     /*Відправляємо дані на сервер з форм*/
     const forms = document.querySelectorAll('form');
@@ -236,10 +220,23 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 
     forms.forEach(item => {
-        postDate(item);
-    })
+        bindPostDate(item);
+    });
 
-    function postDate(form) {
+ // Постинг даних до бази даних за допомогою json-server
+    const postData = async (url, data) => {
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: data
+        });
+
+        return await res.json();
+    };
+
+    function bindPostDate(form) {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
 
@@ -255,21 +252,9 @@ window.addEventListener('DOMContentLoaded', () => {
            const formData = new FormData(form);
            
            // Form Data перетворюємо в json
-            const object = {};
-            formData.forEach(function(value, key) {
-                object[key] = value;
-            });
+            const json = JSON.stringify(Object.fromEntries(formData.entries()));
 
-            //Відправка даних на сервер за допомогою fetch
-
-            fetch('server1.php', {
-                method: 'POST',
-                headers: {
-                    'Content-type': 'application/json'
-                },
-                body: JSON.stringify(object)
-            })
-            .then(data => data.text())
+            postData('http://localhost:3000/requests', json)
             .then(data => {
                 console.log(data);
                 showThanksModal(message.success);
@@ -310,8 +295,9 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     //Підключення до бази даних
+    /*
     fetch('db.json')
     .then(data => data.json())
     .then(result => console.log(result));
-
+*/
 });
